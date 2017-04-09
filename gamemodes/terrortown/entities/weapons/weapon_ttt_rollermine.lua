@@ -21,7 +21,11 @@ if CLIENT then
    SWEP.EquipMenuData = {
       type  = "item_weapon",
       name  = "Rollermine",
-      desc  = "Rollermines will chase players down, doing shock damage."
+      desc  = [[
+Rollermines will chase players down,
+doing shock damage.
+
+Make sure to warn your teammates...]]
    };
 
    SWEP.Icon            = "vgui/ttt/icon_badger_rollermine"
