@@ -1,6 +1,6 @@
 "UnlitGeneric"
 {
- "$basetexture" "VGUI/ttt/icon_rollermine_basic"
+ "$basetexture" "vgui/ttt/icon_badger_rollermine"
  "$vertexcolor" 1
  "$vertexalpha" 1
  "$translucent" 1

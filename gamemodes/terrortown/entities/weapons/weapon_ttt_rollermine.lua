@@ -2,7 +2,7 @@
 
 AddCSLuaFile()
 if SERVER then
-   resource.AddFile("materials/vgui/ttt/icon_rollermine_basic.vmt")
+   resource.AddFile("materials/vgui/ttt/icon_badger_rollermine.vmt")
 end
 
 SWEP.Author = "Badger"
@@ -24,7 +24,7 @@ if CLIENT then
       desc  = "Rollermines will chase players down, doing shock damage."
    };
 
-   SWEP.Icon            = "vgui/ttt/icon_rollermine_basic"
+   SWEP.Icon            = "vgui/ttt/icon_badger_rollermine"
 end
 
 SWEP.Base                   = "weapon_tttbase"
