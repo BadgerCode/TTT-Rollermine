@@ -24,7 +24,7 @@ if CLIENT then
       desc  = "Rollermines will chase players down, doing shock damage."
    };
 
-   SWEP.Icon            = "vgui/ttt/icon_rollermine"
+   SWEP.Icon            = "vgui/ttt/icon_rollermine_basic"
 end
 
 SWEP.Base                   = "weapon_tttbase"
