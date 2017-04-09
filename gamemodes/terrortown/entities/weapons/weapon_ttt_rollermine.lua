@@ -60,10 +60,10 @@ end
 function SWEP:PrimaryAttack()
    self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
    
-   self:RollerDrop()
+   self:DeployRollermine()
 end
 
-function SWEP:RollerDrop()
+function SWEP:DeployRollermine()
    if SERVER then
       local ply = self.Owner
       if not IsValid(ply) then return end
@@ -181,12 +181,12 @@ function SWEP:DrawHeldWorldModel()
    if not IsValid(self.RollermineWorldModel) then
       -- Ideally, this should be drawing the actual world model in the player's hand
       -- Couldn't get it to work so here's a clientside model instead
-      self.RollermineWorldModel = ClientsideModel("models/roller.mdl", RENDERGROUP_OPAQUE)
+      self.RollermineWorldModel = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
       self.RollermineWorldModel:SetModelScale(0.25)
    end
    
    local modelSettings = {
-      model = "models/roller.mdl",
+      model = self.WorldModel,
       pos = rightHandPos,
       angle = rightHandAngle
    }
