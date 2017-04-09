@@ -1,6 +1,9 @@
 -- Traitor Equipment: Throwable rollermine npc from HL2
 
 AddCSLuaFile()
+if SERVER then
+   resource.AddFile("materials/vgui/ttt/icon_rollermine_basic.vmt")
+end
 
 SWEP.Author = "Badger"
 SWEP.Contact = "http://steamcommunity.com/profiles/76561198021181972"
@@ -51,8 +54,6 @@ local throwsound = Sound( "Weapon_SLAM.SatchelThrow" )
 
 
 function SWEP:Initialize()
-   -- For whatever reason, the world model will still collide with the world using its original size
-   -- Collision with players and display size is correct
    self:SetModelScale(0.25)
 end
 
@@ -110,65 +111,84 @@ function SWEP:OnRemove()
    end
 end
 
-if CLIENT then
-
-   function SWEP:ViewModelDrawn()
-      if self.Planted then return end
-
-      local ply = LocalPlayer()
-      local viewModel = ply:GetViewModel()
-      if not IsValid(viewModel) then return end
-
-      if not IsValid(self.RollermineViewModel) then
-         self.RollermineViewModel = ClientsideModel("models/roller.mdl", RENDERGROUP_VIEWMODEL)
-         self.RollermineViewModel:SetModelScale(0.25)
-      end
-
-      local rightHandPos, rightHandAngle = viewModel:GetBonePosition( viewModel:LookupBone( "ValveBiped.Bip01_R_Hand" ) )
+function SWEP:PreDrop()
+   -- We have to record the velocity before its dropped because self.Owner becomes unset once dropped
+   if IsValid(self.Owner) then
+      local ply = self.Owner
+      local vang = ply:GetAimVector()
+      local vvel = ply:GetVelocity()
       
-      rightHandPos = rightHandPos 
-                     + rightHandAngle:Forward() * 2.97
-                     + rightHandAngle:Up() * 0.34 
-                     + rightHandAngle:Right() * 3.48
-      
-      local modelSettings = {
-         model = "models/roller.mdl",
-         pos = rightHandPos,
-         angle = rightHandAngle
-      }
-      render.Model(modelSettings, self.RollermineViewModel)
+      self.DropVelocity = vvel + vang * 300
+   end
+end
+
+function SWEP:OnDrop()
+   self:SetModelScale(0.25)
+   self:Activate()
+
+   local phys = self:GetPhysicsObject()
+   if IsValid(phys) then
+      -- After scaling the world model, it loses its velocity
+      phys:SetVelocity(self.DropVelocity)
+   end  
+end
+
+function SWEP:ViewModelDrawn()
+   if self.Planted then return end
+
+   local ply = LocalPlayer()
+   local viewModel = ply:GetViewModel()
+   if not IsValid(viewModel) then return end
+
+   if not IsValid(self.RollermineViewModel) then
+      self.RollermineViewModel = ClientsideModel("models/roller.mdl", RENDERGROUP_VIEWMODEL)
+      self.RollermineViewModel:SetModelScale(0.25)
+   end
+
+   local rightHandPos, rightHandAngle = viewModel:GetBonePosition( viewModel:LookupBone( "ValveBiped.Bip01_R_Hand" ) )
+   
+   rightHandPos = rightHandPos 
+                  + rightHandAngle:Forward() * 2.97
+                  + rightHandAngle:Up() * 0.34 
+                  + rightHandAngle:Right() * 3.48
+   
+   local modelSettings = {
+      model = "models/roller.mdl",
+      pos = rightHandPos,
+      angle = rightHandAngle
+   }
+   render.Model(modelSettings, self.RollermineViewModel)
+end
+
+function SWEP:DrawWorldModel()
+   local isEquipped = IsValid(self.Owner)
+   
+   if isEquipped then
+      self:DrawHeldWorldModel()
+   else
+      self:DrawModel()
+   end
+end
+
+function SWEP:DrawHeldWorldModel()
+   local rightHandPos, rightHandAngle = self.Owner:GetBonePosition(self.Owner:LookupBone( "ValveBiped.Bip01_R_Hand" ) )
+   
+   rightHandPos = rightHandPos 
+                  + rightHandAngle:Forward() * 2.97
+                  + rightHandAngle:Up() * 0.34 
+                  + rightHandAngle:Right() * 3.48
+
+   if not IsValid(self.RollermineWorldModel) then
+      -- Ideally, this should be drawing the actual world model in the player's hand
+      -- Couldn't get it to work so here's a clientside model instead
+      self.RollermineWorldModel = ClientsideModel("models/roller.mdl", RENDERGROUP_OPAQUE)
+      self.RollermineWorldModel:SetModelScale(0.25)
    end
    
-   function SWEP:DrawWorldModel()
-      local isEquipped = IsValid(self.Owner)
-      
-      if isEquipped then
-         self:DrawHeldWorldModel()
-      else
-         self:DrawModel()
-      end
-   end
-
-   function SWEP:DrawHeldWorldModel()
-      local rightHandPos, rightHandAngle = self.Owner:GetBonePosition(self.Owner:LookupBone( "ValveBiped.Bip01_R_Hand" ) )
-      
-      rightHandPos = rightHandPos 
-                     + rightHandAngle:Forward() * 2.97
-                     + rightHandAngle:Up() * 0.34 
-                     + rightHandAngle:Right() * 3.48
-
-      if not IsValid(self.RollermineWorldModel) then
-         -- Ideally, this should be drawing the actual world model in the player's hand
-         -- Couldn't get it to work so here's a clientside model instead
-         self.RollermineWorldModel = ClientsideModel("models/roller.mdl", RENDERGROUP_OPAQUE)
-         self.RollermineWorldModel:SetModelScale(0.25)
-      end
-      
-      local modelSettings = {
-         model = "models/roller.mdl",
-         pos = rightHandPos,
-         angle = rightHandAngle
-      }
-      render.Model(modelSettings, self.RollermineWorldModel)
-   end
+   local modelSettings = {
+      model = "models/roller.mdl",
+      pos = rightHandPos,
+      angle = rightHandAngle
+   }
+   render.Model(modelSettings, self.RollermineWorldModel)
 end
