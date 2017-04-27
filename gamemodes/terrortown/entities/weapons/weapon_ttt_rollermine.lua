@@ -84,8 +84,10 @@ function SWEP:DeployRollermine()
       if IsValid(rollermine) then
          self.Planted = true
 
+         rollermine:SetHealth(GetConVar("weapon_ttt_rollermine_health"):GetFloat())
          rollermine:SetPos(vsrc + vang * 10)
-         rollermine:SetOwner(ply)
+         rollermine.Deployer = ply
+         rollermine.IsTraitorRollermine = true
          rollermine:Spawn()
          rollermine:Activate()
          
