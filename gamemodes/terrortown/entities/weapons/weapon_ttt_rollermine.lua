@@ -46,12 +46,6 @@ SWEP.Primary.Automatic      = true
 SWEP.Primary.Ammo           = "none"
 SWEP.Primary.Delay          = 5.0
 
-SWEP.Secondary.ClipSize     = -1
-SWEP.Secondary.DefaultClip  = -1
-SWEP.Secondary.Automatic    = true
-SWEP.Secondary.Ammo         = "none"
-SWEP.Secondary.Delay        = 1.0
-
 SWEP.NoSights               = true
 
 local throwsound = Sound( "Weapon_SLAM.SatchelThrow" )
@@ -84,8 +78,10 @@ function SWEP:DeployRollermine()
       if IsValid(rollermine) then
          self.Planted = true
 
-         rollermine:SetPos(vsrc + vang * 10)
-         rollermine:SetOwner(ply)
+         rollermine:SetHealth(GetConVar("weapon_ttt_rollermine_health"):GetFloat())
+         rollermine:SetPos(vsrc + vang * 50)
+         rollermine.Deployer = ply
+         rollermine.IsTraitorRollermine = true
          rollermine:Spawn()
          rollermine:Activate()
          
