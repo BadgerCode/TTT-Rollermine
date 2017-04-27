@@ -1,13 +1,18 @@
+
+-- Rollermine Configuration
+
 local cvarOptions = FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_SERVER_CAN_EXECUTE
 
 CreateConVar("weapon_ttt_rollermine_damage_scale", 1.5, cvarOptions,
-             "The multiplier applied to rollermine damage. When set to 1, 5HP damage will be done from side attacks and 10HP from others. (Default: 1.5)")
+             "The multiplier applied to rollermine damage. (Default: 1.5)")
 
 CreateConVar("weapon_ttt_rollermine_health", 2500, cvarOptions,
              "Rollermine health. (Default: 2500)")
 
 CreateConVar("weapon_ttt_rollermine_explosion_damage", 75, cvarOptions,
              "Maximum damage from rollermine death explosion. (Default: 75)")
+
+
 
 function CheckRollermineDamage( target, dmginfo )
    if target:IsPlayer() and dmginfo:GetAttacker().IsTraitorRollermine then
@@ -27,17 +32,16 @@ function CheckRollermineDamage( target, dmginfo )
       
    elseif target.IsTraitorRollermine then
       dmginfo:SetDamageForce(ScaleRollermineKnockback(dmginfo:GetDamageForce()))
-      
-      if not target.RollermineDestructionPhase then
-         DamageRollermine(target, dmginfo:GetDamage())
-      end
+
+      DamageRollermine(target, dmginfo:GetDamage())
    end
 end
 
 hook.Add("EntityTakeDamage", "weapon_ttt_rollermine_damage", CheckRollermineDamage)
 
+
 function ScaleRollermineKnockback(damageForce)
-   -- Decreases default damage force, which means rollermines fly very far away when shot.
+   -- Decreases damage force. Default behaviour causes rollermines to fly away
    local forceDistance = damageForce:Length()
    local targetDistance = math.min(forceDistance, 30000)
    local distanceRatio = targetDistance / forceDistance
@@ -46,10 +50,13 @@ function ScaleRollermineKnockback(damageForce)
    return damageForce
 end
 
+
 function DamageRollermine(rollermine, damage)
-   local currentHealth = rollermine:Health()
+   if rollermine.RollermineDestructionPhase then return end
+
+   local newHealth = rollermine:Health() - damage
    
-   if currentHealth - damage <= 0 then
+   if newHealth <= 0 then
       rollermine.RollermineDestructionPhase = true
       rollermine:Fire("IgniteLifetime", 5)
       rollermine:SetHealth(0)
@@ -58,9 +65,10 @@ function DamageRollermine(rollermine, damage)
       timer.Create(uniqueTimerName, 3, 1, function() KillRollermine(rollermine) end)
       
    else
-      rollermine:SetHealth(currentHealth - damage)
+      rollermine:SetHealth(newHealth)
    end
 end
+
 
 function KillRollermine(rollermine)
    local explode = ents.Create( "env_explosion" )
