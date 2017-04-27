@@ -1,0 +1,7 @@
+{
+  "title": "TTT Rollermine Traitor Weapon",
+	"description": "Description",
+	"type": "weapon",
+	"tags": ["fun"],
+  "ignore": [".git/*", "README.md"]
+}
